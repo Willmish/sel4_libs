@@ -20,17 +20,18 @@
 #define FASTFN inline __attribute__((always_inline))
 
 #if __riscv_xlen == 32
-#define SEL4BENCH_READ_CCNT(var) \
+#define SEL4BENCH_READ_CCNT(var) {              \
     uint32_t nH1, nL, nH2; \
     asm volatile("rdcycleh %0\n" \
                  "rdcycle %1\n" \
                  "rdcycleh %2\n" \
                  : "=r"(nH1), "=r"(nL), "=r"(nH2)); \
     if (nH1 < nH2) { \
-        asm volatile("rdcycle %0" : "=r"(nL); \
+      asm volatile("rdcycle %0" : "=r"(nL));    \
         nH1 = nH2; \
     } \
-    var = ((uint64_t)((uint64_t) nH1 << 32 | (nL);
+    var = ((uint64_t)((uint64_t) nH1 << 32 | (nL))); \
+    }
 #else
 #define SEL4BENCH_READ_CCNT(var) \
     asm volatile("rdcycle %0" :"=r"(var));
@@ -41,17 +42,18 @@
 } while(0)
 
 #if __riscv_xlen == 32
-#define SEL4BENCH_READ_PCNT(idx, var) \
+#define SEL4BENCH_READ_PCNT(idx, var) {         \
     uint32_t nH1, nL, nH2; \
     asm volatile("csrr %0, hpmcounterh" #idx \
                  "csrr %1, hpmcounter" #idx \
                  "csrr %2, hpmcounterh" #idx \
                  : "=r"(nH1), "=r"(nL), "=r"(nH2)); \
     if (nH1 < nH2) { \
-        asm volatile("csrr %0, hpmcounter" #idx : "=r"(nL); \
-        nH1 = nH2; \
+      asm volatile("csrr %0, hpmcounter" #idx : "=r"(nL));  \
+      nH1 = nH2;                                            \
     } \
-    var = ((uint64_t)((uint64_t) nH1 << 32 | (nL);
+      var = ((uint64_t)((uint64_t) nH1 << 32 | (nL))); \
+      }
 #else
 #define SEL4BENCH_READ_PCNT(idx, var) \
     asm volatile("csrr %0, hpmcounter" #idx : "=r"(var));
