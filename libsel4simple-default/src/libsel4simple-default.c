@@ -139,7 +139,7 @@ int simple_default_untyped_count(void *data)
     return ((seL4_BootInfo *)data)->untyped.end - ((seL4_BootInfo *)data)->untyped.start;
 }
 
-seL4_CPtr simple_default_nth_untyped(void *data, int n, size_t *size_bits, uintptr_t *paddr, bool *device)
+seL4_CPtr simple_default_nth_untyped(void *data, int n, size_t *size_bits, uintptr_t *paddr, bool *device, bool *isTainted)
 {
     assert(data);
 
@@ -154,6 +154,9 @@ seL4_CPtr simple_default_nth_untyped(void *data, int n, size_t *size_bits, uintp
         }
         if (device != NULL) {
             *device = (bool)bi->untypedList[n].isDevice;
+        }
+        if (isTainted != NULL) {
+            *isTainted = (bool)bi->untypedList[n].isTainted;
         }
         return bi->untyped.start + (n);
     }
