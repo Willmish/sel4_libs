@@ -27,15 +27,15 @@ void debug_print_bootinfo(seL4_BootInfo *info)
     printf("Initial thread cnode size: %u\n", (int)info->initThreadCNodeSizeBits);
     printf("List of untypeds\n");
     printf("------------------\n");
-    printf("Paddr    | Size   | Device\n");
+    printf("Paddr    | Size   | Tainted | Device\n");
 
     int sizes[CONFIG_WORD_SIZE] = {0};
     for (int i = 0; i < CONFIG_MAX_NUM_BOOTINFO_UNTYPED_CAPS && i < (info->untyped.end - info->untyped.start); i++) {
         int index = info->untypedList[i].sizeBits;
         assert(index < ARRAY_SIZE(sizes));
         sizes[index]++;
-        printf("%p | %zu | %d\n", (void *)info->untypedList[i].paddr, (size_t)info->untypedList[i].sizeBits,
-               (int)info->untypedList[i].isDevice);
+        printf("%p | %zu | %d | %d\n", (void *)info->untypedList[i].paddr, (size_t)info->untypedList[i].sizeBits,
+               (int)info->untypedList[i].isTainted, (int)info->untypedList[i].isDevice);
     }
 
     printf("Untyped summary\n");

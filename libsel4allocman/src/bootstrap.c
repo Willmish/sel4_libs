@@ -212,6 +212,10 @@ int bootstrap_add_untypeds_from_bootinfo(bootstrap_info_t *bs, seL4_BootInfo *bi
     }
     for (i = bi->untyped.start; i < bi->untyped.end; i++) {
         size_t index = i - bi->untyped.start;
+        if (bi->untypedList[index].isTainted) {
+            ZF_LOGD("Skip tainted UT slab %ld\n", (unsigned long)index);
+            continue;
+        }
         cspacepath_t slot = bs->boot_cspace.make_path(bs->boot_cspace.cspace, i);
         size_t size_bits = bi->untypedList[index].sizeBits;
         uintptr_t paddr = bi->untypedList[index].paddr;
@@ -237,8 +241,13 @@ static int bootstrap_add_untypeds_from_simple(bootstrap_info_t *bs, simple_t *si
         size_t size_bits;
         uintptr_t paddr;
         bool device;
+        bool isTainted;
         cspacepath_t slot = bs->boot_cspace.make_path(bs->boot_cspace.cspace,
-                                                      simple_get_nth_untyped(simple, i, &size_bits, &paddr, &device));
+                                                      simple_get_nth_untyped(simple, i, &size_bits, &paddr, &device, &isTainted));
+        if (isTainted) {
+            ZF_LOGD("Skip tainted UT slab %ld\n", (unsigned long)i);
+            continue;
+        }
         error = _add_ut(bs, slot, size_bits, paddr, device);
         if (error) {
             return error;
@@ -1118,8 +1127,13 @@ int allocman_add_simple_untypeds_with_regions(allocman_t *alloc, simple_t *simpl
         size_t size_bits;
         uintptr_t paddr;
         bool device;
-        cspacepath_t path = allocman_cspace_make_path(alloc, simple_get_nth_untyped(simple, i, &size_bits, &paddr, &device));
+        bool isTainted;
+        cspacepath_t path = allocman_cspace_make_path(alloc, simple_get_nth_untyped(simple, i, &size_bits, &paddr, &device, &isTainted));
         int dev_type = device ? ALLOCMAN_UT_DEV : ALLOCMAN_UT_KERNEL;
+        if (isTainted) {
+            ZF_LOGD("Skip tainted slab %ld\n", (unsigned long)i);
+            continue;
+        }
         // If it is regular UT memory, then we add cap and move on.
         if (dev_type == ALLOCMAN_UT_KERNEL) {
             error = allocman_utspace_add_uts(alloc, 1, &path, &size_bits, &paddr, dev_type);
@@ -1226,6 +1240,10 @@ static int allocman_add_bootinfo_untypeds(allocman_t *alloc, seL4_BootInfo *bi) 
         cspacepath_t slot;
         size_t size_bits;
         uintptr_t paddr;
+        if (bi->untypedList[index].isTainted) {
+            ZF_LOGD("Skip tainted slab %ld\n", (unsigned long)index);
+            continue;
+        }
         slot = allocman_cspace_make_path(alloc, i);
         size_bits = bi->untypedList[index].sizeBits;
         paddr = bi->untypedList[index].paddr;
