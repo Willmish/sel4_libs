@@ -217,7 +217,7 @@ static void _destroy_second_level(allocman_t *alloc, cspace_two_level_t *cspace,
     cspace_single_level_destroy(alloc, &cspace->second_levels[index]->second_level);
     if (cspace->second_levels[index]->cookie_valid) {
         int UNUSED error = seL4_CNode_Delete(cspace->config.cnode, index,
-                                             seL4_WordBits - cspace->config.level_two_bits);
+                                             seL4_WordBits - cspace->config.level_two_bits).error;
         assert(error == seL4_NoError);
         allocman_utspace_free(alloc, cspace->second_levels[index]->cookie, cspace->config.level_two_bits + seL4_SlotBits);
     }

@@ -47,7 +47,7 @@ static inline int vka_cnode_delete(const cspacepath_t *src)
                /* _service */      src->root,
                /* index */         src->capPtr,
                /* depth */         src->capDepth
-           );
+           ).error;
 }
 
 static inline int vka_cnode_mint(const cspacepath_t *dest, const cspacepath_t *src,

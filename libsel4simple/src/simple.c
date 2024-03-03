@@ -36,11 +36,11 @@ int simple_vka_cspace_alloc(void *data, seL4_CPtr *slot)
     }
 
     if (error != seL4_NoError) {
-        error = seL4_CNode_Delete(cnode, simple_get_cap_count(simple) + i, seL4_WordBits);
+        error = seL4_CNode_Delete(cnode, simple_get_cap_count(simple) + i, seL4_WordBits).error;
         return error;
     }
 
-    error = seL4_CNode_Delete(cnode, simple_get_cap_count(simple) + i, seL4_WordBits);
+    error = seL4_CNode_Delete(cnode, simple_get_cap_count(simple) + i, seL4_WordBits).error;
     if (error != seL4_NoError) {
         return error;
     }
